@@ -1,3 +1,5 @@
+using Smartwyre.DeveloperTest.Data;
+using Smartwyre.DeveloperTest.Helper;
 using Smartwyre.DeveloperTest.Services;
 using Smartwyre.DeveloperTest.Types;
 using System;
@@ -79,5 +81,14 @@ public class PaymentServiceTests
 
         var test = await rebateService.Calculate(calculateRequest);
         Assert.False(test.Success);
+    }
+
+    [Fact]
+    public async void HelperFunctionTest()
+    {
+        RebateDataStore store = new RebateDataStore();
+        var rebate = await store.GetRebate("test");
+        var incentive = HelperFunctions.GetIncentiveType(rebate);
+        Assert.Equal(IncentiveType.FixedRateRebate, incentive);
     }
 }

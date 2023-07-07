@@ -20,8 +20,6 @@ public class RebateService : IRebateService
         var rebate = await rebateDataStore.GetRebate(request.RebateIdentifier);
         var product = await productDataStore.GetProduct(request.ProductIdentifier);
 
-        var type = HelperFunctions.GetIncentiveTypeAsEnum(rebate);
-
         var result = new CalculateRebateResult();
 
         if (rebate == null || product == null)
