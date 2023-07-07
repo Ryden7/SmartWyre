@@ -1,19 +1,34 @@
 ﻿using Smartwyre.DeveloperTest.Data;
+using Smartwyre.DeveloperTest.Helper;
 using Smartwyre.DeveloperTest.Types;
+using System.Threading.Tasks;
 
 namespace Smartwyre.DeveloperTest.Services;
 
 public class RebateService : IRebateService
 {
-    public CalculateRebateResult Calculate(CalculateRebateRequest request)
-    {
-        var rebateDataStore = new RebateDataStore();
-        var productDataStore = new ProductDataStore();
+    private readonly RebateDataStore rebateDataStore;
+    private readonly ProductDataStore productDataStore;
 
-        Rebate rebate = rebateDataStore.GetRebate(request.RebateIdentifier);
-        Product product = productDataStore.GetProduct(request.ProductIdentifier);
+    public RebateService()
+    {
+        rebateDataStore = new RebateDataStore();
+        productDataStore = new ProductDataStore();
+    }
+    public async Task<CalculateRebateResult> Calculate(CalculateRebateRequest request)
+    {
+        var rebate = await rebateDataStore.GetRebate(request.RebateIdentifier);
+        var product = await productDataStore.GetProduct(request.ProductIdentifier);
+
+        var type = HelperFunctions.GetIncentiveTypeAsEnum(rebate);
 
         var result = new CalculateRebateResult();
+
+        if (rebate == null || product == null)
+        {
+            result.Success = false;
+            return result; ;
+        }
 
         var rebateAmount = 0m;
 
@@ -90,8 +105,7 @@ public class RebateService : IRebateService
 
         if (result.Success)
         {
-            var storeRebateDataStore = new RebateDataStore();
-            storeRebateDataStore.StoreCalculationResult(rebate, rebateAmount);
+            rebateDataStore.StoreCalculationResult(rebate, rebateAmount);
         }
 
         return result;
